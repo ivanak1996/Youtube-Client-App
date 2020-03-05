@@ -18,6 +18,7 @@ interface IMenuDrawerProps {
 	signIn(): void;
 	signOut(): void;
 	getMyPlaylists(): Promise<IPlaylistModel[]>;
+	retrieveFreshToken(): Promise<string>;
 }
 
 export default class MenuDrawer extends React.Component<IMenuDrawerProps, {}> {
@@ -26,6 +27,7 @@ export default class MenuDrawer extends React.Component<IMenuDrawerProps, {}> {
 		super(props);
 		this.authLink = this.authLink.bind(this);
 		this.getMyPlaylistsWrapper = this.getMyPlaylistsWrapper.bind(this);
+		this.retrieveFreshTokenWrapper = this.retrieveFreshTokenWrapper.bind(this);
 	}
 
 	navLink(nav, text) {
@@ -54,10 +56,14 @@ export default class MenuDrawer extends React.Component<IMenuDrawerProps, {}> {
 		return this.props.getMyPlaylists();
 	}
 
+	async retrieveFreshTokenWrapper(): Promise<string> {
+		return await this.props.retrieveFreshToken();
+	}
+
 	navToPlaylists() {
 		return (
 			<TouchableOpacity style={{ height: 50 }} onPress={() => {
-				this.props.navigation.navigate('Playlists', { getMyPlaylists: this.getMyPlaylistsWrapper });
+				this.props.navigation.navigate('Playlists', { getMyPlaylists: this.getMyPlaylistsWrapper, retrieveFreshToken: this.retrieveFreshTokenWrapper });
 			}}>
 				<Text style={styles.link}>My Playlists</Text>
 			</TouchableOpacity>

@@ -18,6 +18,7 @@ export default class AppWrapper extends Component<{}, IAppWrapperState> {
     constructor(props) {
         super(props);
         this.state = { signedIn: false, name: "", photoUrl: "", accessToken: "", refreshToken: "" };
+        this.retrieveFreshToken = this.retrieveFreshToken.bind(this);
     }
 
     async componentDidMount() {
@@ -58,6 +59,39 @@ export default class AppWrapper extends Component<{}, IAppWrapperState> {
         } catch (e) {
             console.log("error", e)
         }
+    }
+
+    retrieveFreshToken = async () => {
+        try {
+            console.log('retrieve token');
+            let uri = `https://oauth2.googleapis.com/tokeninfo?access_token=${this.state.accessToken}`;
+            fetch(uri, { method: 'GET' })
+                .then((response) => response.json())
+                .then((responseJson) => {
+                    if (responseJson.error === "invalid_token") {
+                        let uri = `https://oauth2.googleapis.com/token?refresh_token=${this.state.refreshToken}&grant_type=refresh_token&clientId=${androidClientId}`;
+                        fetch(uri, {
+                            method: 'POST',
+                            headers: {
+                                "HOST": "oauth2.googleapis.com",
+                                "Content-Type": "application/x-www-form-urlencoded"
+                            }
+                        }
+                        ).then((response) => response.json())
+                            .then((responseJson) => {
+                                console.log(responseJson);
+                                this.setState({ accessToken: responseJson.access_token });
+                            });
+                    }
+                })
+        } catch (e) {
+            console.log("error", e)
+        } finally {
+            console.log(`ACCESS TOKEN: ${this.state.accessToken}`)
+            return this.state.accessToken;
+        }
+
+
     }
 
     checkTokenValidity = async () => {
@@ -172,7 +206,9 @@ export default class AppWrapper extends Component<{}, IAppWrapperState> {
                 signOut: () => { this.signOut() },
                 refreshToken: () => { this.refreshToken() },
                 getMyPlaylists: async () => { return await this.getMyPlaylistsAsync() },
-                checkTokenValidity: () => { this.checkTokenValidity() }
+                // getMyPlaylistContent: async () => { return await this.getMyPlaylistsAsync() },
+                checkTokenValidity: () => { this.checkTokenValidity() },
+                retrieveFreshToken: async () => { return await this.retrieveFreshToken() }
             }}
         />);
     }

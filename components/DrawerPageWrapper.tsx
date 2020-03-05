@@ -8,6 +8,7 @@ import VideoFromUrlGetter from './navigation_screens/VideoFromUrlGetter';
 import HomeScreen from './navigation_screens/HomeScreen';
 import VideoDetailsPageWrapper from './navigation_screens/VideoDetailsPageWrapper';
 import PlaylistWrapper from './navigation_screens/PlaylistWrapper';
+import PlaylistVideosList from './navigation_screens/PlaylistVideosList';
 
 const WIDTH = Dimensions.get('window').width;
 
@@ -22,7 +23,8 @@ const DrawerConfig = {
 			signIn={() => screenProps.signIn()}
 			signOut={() => screenProps.signOut()}
 			//getMyPlaylists={async () => screenProps.getMyPlaylists()}
-			getMyPlaylists={async () => {return await screenProps.getMyPlaylists()}}
+			getMyPlaylists={async () => { return await screenProps.getMyPlaylists() }}
+			retrieveFreshToken={async () => { return await screenProps.retrieveFreshToken() }}
 		/>)
 	}
 }
@@ -40,6 +42,9 @@ const DrawerPageWrapper = createDrawerNavigator(
 		},
 		Playlists: {
 			screen: PlaylistWrapper
+		},
+		PlaylistVideosList: {
+			screen: PlaylistVideosList
 		}
 	},
 	DrawerConfig,

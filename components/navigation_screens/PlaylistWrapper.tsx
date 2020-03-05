@@ -23,7 +23,9 @@ export default class PlaylistWrapper extends Component<IPlaylistWrapperProps, {}
                 </View>
                 <View style={{ flex: 9 }}>
                     <Playlists
+                        navigation={this.props.navigation}
                         getMyPlaylists={params.getMyPlaylists}
+                        retrieveFreshToken={params.retrieveFreshToken}
                     />
                 </View>
             </View>

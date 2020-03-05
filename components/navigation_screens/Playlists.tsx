@@ -3,9 +3,9 @@ import IPlaylistModel from "../../models/IPlaylistModel";
 import { View, FlatList, TouchableOpacity, Text, Image, StyleSheet } from "react-native";
 
 interface IPlaylistsProps {
-    //navigation: any;
-    //playlists: IPlaylistModel[];
+    navigation: any;
     getMyPlaylists(): Promise<IPlaylistModel[]>;
+    retrieveFreshToken(): Promise<string>;
 }
 
 interface IPlaylistState {
@@ -16,29 +16,18 @@ export default class Playlists extends Component<IPlaylistsProps, IPlaylistState
 
     constructor(props: IPlaylistsProps) {
         super(props);
-        //console.log(this.props.playlists);
         this.state = ({ playlists: [] });
     }
 
-    async componentDidUpdate(prevProps: IPlaylistsProps) {
-        console.log('component did update');
-        //console.log(this.props.playlists);
-        // if (this.props.playlists != prevProps.playlists) {
-        var newPl = await this.props.getMyPlaylists();
-        this.setState({ playlists: newPl });
-        //}
-    }
-
-    /*async componentDidMount() {
+    async componentDidMount() {
+        console.log('component did mount');
         try {
-            console.log('catching playlists');
-            var pl = await this.props.getMyPlaylists();
-            this.setState({ playlists: pl });
+            var newPl = await this.props.getMyPlaylists();
+            this.setState({ playlists: newPl });
         } catch (err) {
             console.log(err);
-            console.log('not possible to populate the playlist');
         }
-    }*/
+    }
 
     render() {
         return (
@@ -50,8 +39,8 @@ export default class Playlists extends Component<IPlaylistsProps, IPlaylistState
                             id={item.id}
                             title={item.title}
                             thumbnail={item.thumbnailUrl}
-                            //onSelect={() => this.props.navigation.navigate(`VideoDetails`, { id: item.id, description: item.description, title: item.title })}
-                            onSelect={() => { }}
+                            onSelect={() => this.props.navigation.navigate(`PlaylistVideosList`, { id: item.id, title: item.title, retrieveFreshToken: this.props.retrieveFreshToken })}
+                        // onSelect={() => { }}
                         //isSelected={this.isSelected}
                         />}
                     keyExtractor={item => item.id}
