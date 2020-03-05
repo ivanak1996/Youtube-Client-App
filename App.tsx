@@ -6,5 +6,5 @@ import DrawerPageWrapper from './components/DrawerPageWrapper';
 
 export default function App() {
   //return (<AppWrapper/>);
-  return (<DrawerPageWrapper/>);
+  return (<AppWrapper/>);
 }

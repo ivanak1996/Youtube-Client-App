@@ -24,7 +24,8 @@ export default class AppWrapper extends Component<{}, IAppWrapperState> {
         try {
             await SecureStore.getItemAsync(KEY_LOGIN_RESULT).then((value) => {
                 let val = JSON.parse(value);
-                let user = JSON.parse(val.user);
+                console.log(val);
+                let user = val.user;
                 this.setState({
                     signedIn: true,
                     name: user.name,
@@ -40,7 +41,7 @@ export default class AppWrapper extends Component<{}, IAppWrapperState> {
 
     refreshToken() {
         try {
-            let uri = `https://oauth2.googleapis.com/token?refresh_token=${this.state.refreshToken}?grant_type=refresh_token&clientId=${androidClientId}`;
+            let uri = `https://oauth2.googleapis.com/token?refresh_token=${this.state.refreshToken}&grant_type=refresh_token&clientId=${androidClientId}`;
             let response = fetch(uri, {
                 method: 'POST',
                 headers: {
@@ -50,7 +51,9 @@ export default class AppWrapper extends Component<{}, IAppWrapperState> {
             }
             ).then((response) => response.json())
                 .then((responseJson) => {
+                    console.log(responseJson);
                     this.setState({ accessToken: responseJson.access_token });
+
                 });
         } catch (e) {
             console.log("error", e)
@@ -64,6 +67,9 @@ export default class AppWrapper extends Component<{}, IAppWrapperState> {
                 .then((response) => response.json())
                 .then((responseJson) => {
                     //... if error, get new one
+                    console.log(responseJson.error);
+                    if (responseJson.error === "invalid_token")
+                        this.refreshToken();
                 })
         } catch (e) {
             console.log("error", e)
@@ -71,6 +77,7 @@ export default class AppWrapper extends Component<{}, IAppWrapperState> {
     }
 
     signIn = async () => {
+        console.log("sign in called");
         try {
             const result = await Google.logInAsync({
                 androidClientId: androidClientId,
@@ -118,9 +125,10 @@ export default class AppWrapper extends Component<{}, IAppWrapperState> {
         }
     }
 
-    getMyPlaylists = async () => {
+    getMyPlaylistsAsync = async () => {
         let uri = `${YOUTUBE_SERVER_URI}/api/Youtube/GetMyPlaylistsGoogle`;
         try {
+            await (this.checkTokenValidity());
             let response =
                 await fetch(uri,
                     {
@@ -128,14 +136,45 @@ export default class AppWrapper extends Component<{}, IAppWrapperState> {
                         body: JSON.stringify({ accessToken: this.state.accessToken })
                     })
                     .then((response) => response.json());
+            //console.log(response);
             return response;
         } catch (error) {
             console.error(error);
         }
     }
 
+    getMyPlaylists = () => {
+        let uri = `${YOUTUBE_SERVER_URI}/api/Youtube/GetMyPlaylistsGoogle`;
+        try {
+            this.checkTokenValidity().then(() => {
+                var response =
+                    fetch(uri,
+                        {
+                            method: 'POST', headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                            body: JSON.stringify({ accessToken: this.state.accessToken })
+                        })
+                        .then((response) => response.json());
+                //console.log(response);
+                return response;
+            })
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     render() {
-        return (<DrawerPageWrapper />);
+        return (<DrawerPageWrapper
+            screenProps={{
+                signedIn: this.state.signedIn,
+                name: this.state.name,
+                photoUrl: this.state.photoUrl,
+                signIn: () => { this.signIn() },
+                signOut: () => { this.signOut() },
+                refreshToken: () => { this.refreshToken() },
+                getMyPlaylists: async () => { return await this.getMyPlaylistsAsync() },
+                checkTokenValidity: () => { this.checkTokenValidity() }
+            }}
+        />);
     }
 
     /*render() {

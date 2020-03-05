@@ -1,53 +1,90 @@
 import React from 'react';
 import {
-	View, 
+	View,
 	Text,
 	Image,
 	ScrollView,
-	Platform,
 	Dimensions,
 	StyleSheet,
 	TouchableOpacity,
 } from 'react-native';
-
-const WIDTH = Dimensions.get('window').width;
-const HEIGHT = Dimensions.get('window').height;
+import IPlaylistModel from '../models/IPlaylistModel';
 
 interface IMenuDrawerProps {
-    navigation: any;
+	navigation: any;
+	isLoggedInUser: boolean;
+	name: string;
+	photoUrl: string;
+	signIn(): void;
+	signOut(): void;
+	getMyPlaylists(): Promise<IPlaylistModel[]>;
 }
 
 export default class MenuDrawer extends React.Component<IMenuDrawerProps, {}> {
 
-    constructor(props: IMenuDrawerProps) {
-        super(props);
-    }
+	constructor(props: IMenuDrawerProps) {
+		super(props);
+		this.authLink = this.authLink.bind(this);
+		this.getMyPlaylistsWrapper = this.getMyPlaylistsWrapper.bind(this);
+	}
 
 	navLink(nav, text) {
-		return(
-			<TouchableOpacity style={{height: 50}} onPress={() => this.props.navigation.navigate(nav)}>
+		return (
+			<TouchableOpacity style={{ height: 50 }} onPress={async () => this.props.navigation.navigate(nav)}>
 				<Text style={styles.link}>{text}</Text>
 			</TouchableOpacity>
 		)
 	}
 
+	authLink() {
+		if (!this.props.isLoggedInUser)
+			return (
+				<TouchableOpacity style={{ height: 50 }} onPress={() => this.props.signIn()}>
+					<Text style={styles.link}>Sign In</Text>
+				</TouchableOpacity>
+			); else
+			return (
+				<TouchableOpacity style={{ height: 50 }} onPress={() => this.props.signOut()}>
+					<Text style={styles.link}>Sign Out</Text>
+				</TouchableOpacity>
+			);
+	}
+
+	getMyPlaylistsWrapper(): Promise<IPlaylistModel[]> {
+		return this.props.getMyPlaylists();
+	}
+
+	navToPlaylists() {
+		return (
+			<TouchableOpacity style={{ height: 50 }} onPress={() => {
+				this.props.navigation.navigate('Playlists', { getMyPlaylists: this.getMyPlaylistsWrapper });
+			}}>
+				<Text style={styles.link}>My Playlists</Text>
+			</TouchableOpacity>
+		);
+
+	}
+
 	render() {
-		return(
+		return (
 			<View style={styles.container}>
 				<ScrollView style={styles.scroller}>
 					<View style={styles.topLinks}>
 						<View style={styles.profile}>
 							<View style={styles.imgView}>
-								<Image style={styles.img} source={{uri: "https://lh3.googleusercontent.com/-298R4mW-Mps/WoGL2JIjlGI/AAAAAAAAAss/xuKqPK-9xHoAMwNvLhk5ZpaxvX6fs6snQCEwYBhgL/w140-h140-p/d33f0cc9-9490-4431-b8b5-5c8740501f41"}} />
+								{this.props.isLoggedInUser && <Image style={styles.img} source={{ uri: this.props.photoUrl }} />}
+								{!this.props.isLoggedInUser && <Image style={styles.img} source={{ uri: "https://1.bp.blogspot.com/_wxtdziSoI_M/S9Q5U8_jXYI/AAAAAAAACG8/kUtPqAALd0I/s1600/L+Death+Note+Anime.jpg" }} />}
 							</View>
 							<View style={styles.profileText}>
-								<Text style={styles.name}>Ivana Krstic</Text>
+								{this.props.isLoggedInUser && <Text style={styles.name}>{this.props.name}</Text>}
 							</View>
 						</View>
 					</View>
 					<View style={styles.bottomLinks}>
 						{this.navLink('Home', 'Home')}
-						{this.navLink('Settings', 'Settings')}
+						{this.navLink('VideoFromUrl', 'Get video from URL')}
+						{this.props.isLoggedInUser && this.navToPlaylists()}
+						{this.authLink()}
 					</View>
 				</ScrollView>
 				<View style={styles.footer}>
@@ -96,7 +133,7 @@ const styles = StyleSheet.create({
 		width: 70,
 		borderRadius: 50,
 	},
-	topLinks:{
+	topLinks: {
 		height: 160,
 		backgroundColor: 'black',
 	},
@@ -123,14 +160,14 @@ const styles = StyleSheet.create({
 		borderTopColor: 'lightgray'
 	},
 	version: {
-		flex: 1, 
+		flex: 1,
 		textAlign: 'right',
 		marginRight: 20,
 		color: 'gray'
 	},
 	description: {
-		flex: 1, 
+		flex: 1,
 		marginLeft: 20,
 		fontSize: 16,
 	}
-})
+});
