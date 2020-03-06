@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { View, StatusBar } from "react-native";
-import MenuButton from "../MenuButton";
+import MenuButton from "../../MenuButton";
 import Playlists from "./Playlists";
 
 interface IPlaylistWrapperProps {

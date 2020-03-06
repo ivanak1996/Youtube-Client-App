@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { StyleSheet, Image, Text, View, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import IVideoListItem from '../models/IVideoListItem';
-import { YOUTUBE_SERVER_URI } from '../constants';
+import IVideoListItem from '../../../models/IVideoListItem';
+import { YOUTUBE_SERVER_URI } from '../../../constants';
 
 interface IVideosListProps {
     keyword: string;

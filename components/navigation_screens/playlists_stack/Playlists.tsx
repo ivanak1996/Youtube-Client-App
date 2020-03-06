@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import IPlaylistModel from "../../models/IPlaylistModel";
+import IPlaylistModel from "../../../models/IPlaylistModel";
 import { View, FlatList, TouchableOpacity, Text, Image, StyleSheet } from "react-native";
 
 interface IPlaylistsProps {
@@ -31,7 +31,7 @@ export default class Playlists extends Component<IPlaylistsProps, IPlaylistState
 
     render() {
         return (
-            <View style={{ paddingBottom: 64, backgroundColor: "#595959" }}>
+            <View style={{ flex: 1, backgroundColor: "#595959" }}>
                 <FlatList
                     data={this.state.playlists}
                     renderItem={({ item }) =>
@@ -39,7 +39,12 @@ export default class Playlists extends Component<IPlaylistsProps, IPlaylistState
                             id={item.id}
                             title={item.title}
                             thumbnail={item.thumbnailUrl}
-                            onSelect={() => this.props.navigation.navigate(`PlaylistVideosList`, { id: item.id, title: item.title, retrieveFreshToken: this.props.retrieveFreshToken })}
+                            onSelect={() => {
+                                console.log('on select');
+                                this.props.navigation.navigate(`MyPlaylistVideoList`, {
+                                    id: item.id, title: item.title, retrieveFreshToken: this.props.retrieveFreshToken
+                                })
+                            }}
                         // onSelect={() => { }}
                         //isSelected={this.isSelected}
                         />}

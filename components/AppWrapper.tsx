@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, Image, Button } from "react-native";
 import * as Google from "expo-google-app-auth";
 import * as SecureStore from 'expo-secure-store';
 import { YOUTUBE_SERVER_URI, KEY_LOGIN_RESULT, androidClientId } from '../constants';
@@ -206,69 +205,9 @@ export default class AppWrapper extends Component<{}, IAppWrapperState> {
                 signOut: () => { this.signOut() },
                 refreshToken: () => { this.refreshToken() },
                 getMyPlaylists: async () => { return await this.getMyPlaylistsAsync() },
-                // getMyPlaylistContent: async () => { return await this.getMyPlaylistsAsync() },
                 checkTokenValidity: () => { this.checkTokenValidity() },
                 retrieveFreshToken: async () => { return await this.retrieveFreshToken() }
             }}
         />);
     }
-
-    /*render() {
-        return (
-            //<MainPageWrapper/>
-            <View style={styles.container}>
-                {this.state.signedIn ? (
-                    <LoggedInPage
-                        name={this.state.name}
-                        photoUrl={this.state.photoUrl}
-                        signOut={this.signOut}
-                        getMyPlaylists={this.getMyPlaylists}
-                    />
-                ) : (
-                        <LoginPage signIn={this.signIn} />
-                    )}
-            </View>
-        );
-    }*/
-
 }
-
-const LoginPage = props => {
-    return (
-        <View>
-            <Text style={styles.header}>Sign In With Google</Text>
-            <Button title="Sign in with Google" onPress={() => props.signIn()} />
-        </View>
-    )
-}
-
-const LoggedInPage = props => {
-    return (
-        <View style={styles.container}>
-            <Text style={styles.header}>Welcome:{props.name}</Text>
-            <Image style={styles.image} source={{ uri: props.photoUrl }} />
-            <Button title="Sign out" onPress={() => props.signOut()} />
-            <Button title="Get my playlists" onPress={() => props.getMyPlaylists()} />
-        </View>
-    )
-}
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
-        alignItems: "center",
-        justifyContent: "center"
-    },
-    header: {
-        fontSize: 25
-    },
-    image: {
-        marginTop: 15,
-        width: 150,
-        height: 150,
-        borderColor: "rgba(0,0,0,0.2)",
-        borderWidth: 3,
-        borderRadius: 150
-    }
-});

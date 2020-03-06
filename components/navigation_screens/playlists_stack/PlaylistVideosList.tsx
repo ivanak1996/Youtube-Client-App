@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { View, FlatList, ActivityIndicator, Text, StyleSheet, TouchableOpacity, Image, StatusBar } from "react-native";
-import IVideoListItem from "../../models/IVideoListItem";
-import { YOUTUBE_SERVER_URI } from "../../constants";
-import MenuButton from "../MenuButton";
+import IVideoListItem from "../../../models/IVideoListItem";
+import { YOUTUBE_SERVER_URI } from "../../../constants";
+import MenuButton from "../../MenuButton";
 
 interface IPlaylistVideosListProps {
     navigation: any;
@@ -98,35 +98,30 @@ export default class PlaylistVideosList extends Component<IPlaylistVideosListPro
     render() {
         return (
             <View style={{ flex: 1 }}>
-                <View style={{ flex: 1, paddingBottom: StatusBar.currentHeight, }}>
-                    <MenuButton navigation={this.props.navigation} />
-                </View>
-                <View style={{ flex: 9 }}>
-                    {this.state.videos.length > 0 &&
-                        <View style={{ paddingBottom: 64, backgroundColor: "#595959" }}>
-                            <FlatList
-                                data={this.state.videos}
-                                renderItem={({ item }) =>
-                                    <Item
-                                        id={item.id}
-                                        title={item.title}
-                                        description={item.description}
-                                        thumbnail={item.thumbnailUrl}
-                                        onSelect={() => this.props.navigation.navigate(`VideoDetails`, { id: item.id, description: item.description, title: item.title })}
-                                    />}
-                                keyExtractor={item => item.id}
-                                onEndReached={this.getMorePlaylistVideos}
-                                ListFooterComponent={this.renderFooter.bind(this)}
-                            />
-                        </View>
-                    }
-                    {this.state.videos.length <= 0 &&
-                        <View style={styles.spinnerContainer}>
-                            <ActivityIndicator color="#00ff00" size="large" />
-                            <Text style={styles.title}>Loading...</Text>
-                        </View>
-                    }
-                </View>
+                {this.state.videos.length > 0 &&
+                    <View style={{ backgroundColor: "#595959" }}>
+                        <FlatList
+                            data={this.state.videos}
+                            renderItem={({ item }) =>
+                                <Item
+                                    id={item.id}
+                                    title={item.title}
+                                    description={item.description}
+                                    thumbnail={item.thumbnailUrl}
+                                    onSelect={() => this.props.navigation.navigate(`MyPlaylistVideoDetails`, { id: item.id, description: item.description, title: item.title })}
+                                />}
+                            keyExtractor={item => item.id}
+                            onEndReached={this.getMorePlaylistVideos}
+                            ListFooterComponent={this.renderFooter.bind(this)}
+                        />
+                    </View>
+                }
+                {this.state.videos.length <= 0 &&
+                    <View style={styles.spinnerContainer}>
+                        <ActivityIndicator color="#00ff00" size="large" />
+                        <Text style={styles.title}>Loading...</Text>
+                    </View>
+                }
             </View>
         );
     }

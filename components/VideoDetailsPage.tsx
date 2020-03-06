@@ -6,6 +6,7 @@ import * as MediaLibrary from 'expo-media-library';
 import * as Permissions from 'expo-permissions';
 import * as Sharing from 'expo-sharing';
 import { YOUTUBE_SERVER_URI } from '../constants';
+import { ScrollView } from "react-native-gesture-handler";
 
 const WIDTH = Dimensions.get('window').width;
 
@@ -27,11 +28,40 @@ export default class VideoDetailsPage extends Component<IVideoDetailsPageProps, 
         this.state = { hasError: false, isDownloading: false }
         this.downloadFile = this.downloadFile.bind(this);
         this.saveFile = this.saveFile.bind(this);
+        this.shareFile = this.shareFile.bind(this);
     }
 
     componentDidUpdate(prevProps: IVideoDetailsPageProps) {
         if (this.props.id != prevProps.id) {
             this.setState({ hasError: false });
+        }
+    }
+
+    DownloadAndShareSection = () => {
+        if (Platform.OS === 'android') {
+            return (
+                <View style={{ flex: 1, flexDirection: 'row' }}>
+                    <View style={{ flex: 1, marginLeft: 10, marginRight: 10 }}>
+                        <Button
+                            title="Download"
+                            onPress={() => this.downloadFile(true)}
+                        />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <Button
+                            title="Share"
+                            onPress={() => this.downloadFile(false)}
+                        />
+                    </View>
+                </View>);
+        } else if (Platform.OS === 'ios') {
+            return (
+                <View style={{ flex: 1, marginLeft: 10, marginRight: 10 }}>
+                    <Button
+                        title="Share"
+                        onPress={() => this.downloadFile(false)}
+                    />
+                </View>);
         }
     }
 
@@ -61,21 +91,27 @@ export default class VideoDetailsPage extends Component<IVideoDetailsPageProps, 
                 }
                 <View style={{ backgroundColor: "#595959", flex: 1, marginTop: 12 }}>
                     <View style={styles.container_text}>
-                        <Text style={styles.title}>{this.props.title}</Text>
-                        <Text style={styles.description}>{this.props.description}</Text>
-                        <Button
-                            title="Download"
-                            onPress={this.downloadFile}
-                        />
+                        <View style={{ flex: 3 }}>
+                            <Text style={styles.title}>{this.props.title}</Text>
+                            <ScrollView style={{ marginBottom: 20, marginTop: 20 }}>
+                                <Text style={styles.description}>{this.props.description}</Text>
+                            </ScrollView>
+                        </View>
+                        <this.DownloadAndShareSection />
+                        {/* <View style={{ flex: 1 }}>
+                            <Button
+                                title="Download"
+                                onPress={this.downloadFile}
+                            />
+                        </View> */}
                         {this.state.isDownloading && <ActivityIndicator size="small" color="#00ff00" />}
                     </View>
                 </View>
             </View>
         );
-
     }
 
-    downloadFile() {
+    downloadFile(shouldDownload: boolean) {
         this.setState({ isDownloading: true });
         const uri = `${YOUTUBE_SERVER_URI}/api/Youtube/DownloadFile/${this.props.id}`;
         let str = this.props.title;
@@ -84,7 +120,10 @@ export default class VideoDetailsPage extends Component<IVideoDetailsPageProps, 
         console.log(fileUri);
         FileSystem.downloadAsync(uri, fileUri)
             .then(({ uri }) => {
-                this.saveFile(uri);
+                if (shouldDownload)
+                    this.saveFile(uri);
+                else
+                    this.shareFile(uri);
             })
             .catch(error => {
                 console.error(error);
@@ -101,12 +140,20 @@ export default class VideoDetailsPage extends Component<IVideoDetailsPageProps, 
                 const asset = await MediaLibrary.createAssetAsync(fileUri);
                 await MediaLibrary.createAlbumAsync("Download", asset);
             }
-        } else if(Platform.OS === 'ios') {
-            Sharing.shareAsync(fileUri, {UTI: 'public.audio'})
+        } else if (Platform.OS === 'ios') {
+            Sharing.shareAsync(fileUri, { UTI: 'public.audio' })
+        }
+    }
+
+    shareFile = async (fileUri: string) => {
+        console.log('share file');
+        if (Platform.OS === 'ios') {
+            Sharing.shareAsync(fileUri, { UTI: 'public.audio' });
+        } else if (Platform.OS === 'android') {
+            Sharing.shareAsync(fileUri, { mimeType: 'audio/mpeg' });
         }
     }
 }
-
 
 const styles = StyleSheet.create({
     container: {

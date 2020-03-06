@@ -4,11 +4,11 @@ import { createAppContainer } from 'react-navigation';
 import { createDrawerNavigator } from 'react-navigation-drawer';
 
 import MenuDrawer from '../components/MenuDrawer';
-import VideoFromUrlGetter from './navigation_screens/VideoFromUrlGetter';
-import HomeScreen from './navigation_screens/HomeScreen';
+import HomeScreen from './navigation_screens/search_stack/HomeScreen';
 import VideoDetailsPageWrapper from './navigation_screens/VideoDetailsPageWrapper';
-import PlaylistWrapper from './navigation_screens/PlaylistWrapper';
-import PlaylistVideosList from './navigation_screens/PlaylistVideosList';
+import PlaylistVideosList from './navigation_screens/playlists_stack/PlaylistVideosList';
+import PlaylistWrapperWithStack from './navigation_screens/playlists_stack/PlaylistWrapperWithStack';
+import UrlStack from './navigation_screens/url_stack/UrlStack';
 
 const WIDTH = Dimensions.get('window').width;
 
@@ -38,10 +38,10 @@ const DrawerPageWrapper = createDrawerNavigator(
 			screen: VideoDetailsPageWrapper,
 		},
 		VideoFromUrl: {
-			screen: VideoFromUrlGetter
+			screen: UrlStack
 		},
 		Playlists: {
-			screen: PlaylistWrapper
+			screen: PlaylistWrapperWithStack
 		},
 		PlaylistVideosList: {
 			screen: PlaylistVideosList

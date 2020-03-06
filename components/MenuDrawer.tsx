@@ -46,7 +46,10 @@ export default class MenuDrawer extends React.Component<IMenuDrawerProps, {}> {
 				</TouchableOpacity>
 			); else
 			return (
-				<TouchableOpacity style={{ height: 50 }} onPress={() => this.props.signOut()}>
+				<TouchableOpacity style={{ height: 50 }} onPress={() => {
+					this.props.signOut();
+					this.props.navigation.navigate("Home");
+				}}>
 					<Text style={styles.link}>Sign Out</Text>
 				</TouchableOpacity>
 			);

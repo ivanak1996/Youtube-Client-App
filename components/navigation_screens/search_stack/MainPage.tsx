@@ -24,9 +24,7 @@ export default class CustomTextInput extends Component<ICustomTextInputProps, IC
   }
 
   updateSearch = search => {
-    console.log('search updated');
     this.setState({ search });
-    console.log(this.state.search);
   };
 
   render() {
@@ -40,17 +38,18 @@ export default class CustomTextInput extends Component<ICustomTextInputProps, IC
           placeholder="Type Here..."
           onChangeText={this.updateSearch}
           onSubmitEditing={() => {
-            console.log('search submitted');
             this.setState({ submittedSearch: this.state.search });
-            console.log(this.state.submittedSearch);
           }}
           value={search}
         />
         {this.state.submittedSearch !== "" &&
           <VideosList keyword={this.state.submittedSearch} navigation={this.props.navigation} />}
         {this.state.submittedSearch === "" &&
-          <View style={{ flex: 1, alignContent: 'center' }}>
-            <Text>Type to search result</Text>
+          <View style={{ flex: 1, backgroundColor: "#999999" }}>
+            <View style={{ flex: 1, margin: 24, alignContent: 'center', justifyContent: 'center' }}>
+              <Text style={{ textAlign: 'center', color: "#ffccff", fontSize: 24, marginBottom: 5 }}>Welcome to Share Tube app!</Text>
+              <Text style={{ textAlign: 'center', color: "#ffccff", fontSize: 20 }}>Search for song you like, or log in with your Google account to access your saved playlists</Text>
+            </View>
           </View>
         }
       </View>
@@ -58,8 +57,6 @@ export default class CustomTextInput extends Component<ICustomTextInputProps, IC
   }
 
 }
-
-
 
 const list2 = [
   {
