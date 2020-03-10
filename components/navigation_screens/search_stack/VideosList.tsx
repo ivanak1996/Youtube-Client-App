@@ -3,6 +3,7 @@ import { StyleSheet, Image, Text, View, FlatList, TouchableOpacity, ActivityIndi
 import { Ionicons } from '@expo/vector-icons';
 import IVideoListItem from '../../../models/IVideoListItem';
 import { YOUTUBE_SERVER_URI } from '../../../constants';
+import NetworkFailedScreen from '../NetworkFailedScreen';
 
 interface IVideosListProps {
     keyword: string;
@@ -14,7 +15,7 @@ interface IVideosListState {
     list: IVideoListItem[];
     nextPageToken: string;
     loading: boolean;
-    //hasLoadedResults: boolean;
+    hasFailed: boolean;
 }
 
 async function getSearchResultsFromApi(keyword: string) {
@@ -24,8 +25,8 @@ async function getSearchResultsFromApi(keyword: string) {
         let response = await fetch(uri).then((response) => response.json());
         return response;
     } catch (error) {
-        this.setState({list: list1});
         //console.error(error);
+        return null;
     }
 }
 
@@ -44,7 +45,7 @@ export default class VideosList extends Component<IVideosListProps, IVideosListS
 
     constructor(props: IVideosListProps) {
         super(props);
-        this.state = { selected: -1, list: [], nextPageToken: '', loading: false };
+        this.state = { selected: -1, list: [], nextPageToken: '', loading: false, hasFailed: false };
 
         this.handleItemClick = this.handleItemClick.bind(this);
         this.isSelected = this.isSelected.bind(this);
@@ -71,12 +72,15 @@ export default class VideosList extends Component<IVideosListProps, IVideosListS
     }
 
     async getSearchResults() {
+        console.log("triggered");
         this.setState({ list: [], nextPageToken: "" });
         try {
             let res = await (getSearchResultsFromApi(this.props.keyword));
-            this.setState({ list: res.videosList, nextPageToken: res.nextPageToken });
+            this.setState({ list: res.videosList, nextPageToken: res.nextPageToken, hasFailed: false });
         } catch (error) {
             console.log(error);
+            this.setState({ hasFailed: true });
+            //this.props.navigation.navigate("ErrorPage");
         }
     }
 
@@ -86,12 +90,13 @@ export default class VideosList extends Component<IVideosListProps, IVideosListS
         this.setState({
             list: arrayUnique(this.state.list.concat(additionalListItems.videosList)),
             nextPageToken: additionalListItems.nextPageToken,
-            loading: false
+            loading: false,
+            hasFailed: false
         });
     }
 
     renderFooter() {
-        return this.state.loading &&
+        return this.state.loading && this.state.nextPageToken !== "NO_MORE" &&
             <View style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
                 <ActivityIndicator color="#00ff00" />
                 <Text style={styles.description}>Loading...</Text>
@@ -99,7 +104,9 @@ export default class VideosList extends Component<IVideosListProps, IVideosListS
     }
 
     render() {
-        if (this.state.list.length > 0)
+        if (this.state.hasFailed)
+            return (<NetworkFailedScreen onRefreshCallback={async () => await this.getSearchResults()} />)
+        else if (this.state.list.length > 0)
             return (
                 <View style={{ paddingBottom: 64, backgroundColor: "#595959" }}>
                     <FlatList
@@ -169,7 +176,7 @@ const styles = StyleSheet.create({
         elevation: 1,
         justifyContent: 'center',
         alignContent: 'center',
-        alignItems:'center'
+        alignItems: 'center'
     },
     container: {
         flex: 1,

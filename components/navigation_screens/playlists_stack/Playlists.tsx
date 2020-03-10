@@ -1,59 +1,91 @@
 import React, { Component } from "react";
 import IPlaylistModel from "../../../models/IPlaylistModel";
-import { View, FlatList, TouchableOpacity, Text, Image, StyleSheet } from "react-native";
+import { View, FlatList, TouchableOpacity, Text, Image, StyleSheet, ActivityIndicator } from "react-native";
+import NetworkFailedScreen from "../NetworkFailedScreen";
 
 interface IPlaylistsProps {
     navigation: any;
     getMyPlaylists(): Promise<IPlaylistModel[]>;
     retrieveFreshToken(): Promise<string>;
+    email: string;
 }
 
 interface IPlaylistState {
     playlists: IPlaylistModel[];
+    hasFailed: boolean;
 }
 
 export default class Playlists extends Component<IPlaylistsProps, IPlaylistState> {
 
     constructor(props: IPlaylistsProps) {
         super(props);
-        this.state = ({ playlists: [] });
+        this.state = ({ playlists: [], hasFailed: false });
+        this.loadPlaylists = this.loadPlaylists.bind(this);
+    }
+
+    componentDidUpdate(prevProps: IPlaylistsProps) {
+        if(prevProps.email !== this.props.email) {
+            this.setState({playlists: []});
+            this.loadPlaylists();
+        }
+    }
+
+    async loadPlaylists() {
+        try {
+            var newPl = await this.props.getMyPlaylists();
+            if (newPl == null) {
+                this.setState({ hasFailed: true });
+            }
+            else {
+                this.setState({ playlists: newPl, hasFailed: false });
+            }
+        } catch (err) {
+            console.log('ne moze');
+            this.setState({ hasFailed: true })
+        }
     }
 
     async componentDidMount() {
         console.log('component did mount');
-        try {
-            var newPl = await this.props.getMyPlaylists();
-            this.setState({ playlists: newPl });
-        } catch (err) {
-            console.log(err);
-        }
+        this.loadPlaylists();
     }
 
     render() {
-        return (
-            <View style={{ flex: 1, backgroundColor: "#595959" }}>
-                <FlatList
-                    data={this.state.playlists}
-                    renderItem={({ item }) =>
-                        <Item
-                            id={item.id}
-                            title={item.title}
-                            thumbnail={item.thumbnailUrl}
-                            onSelect={() => {
-                                console.log('on select');
-                                this.props.navigation.navigate(`MyPlaylistVideoList`, {
-                                    id: item.id, title: item.title, retrieveFreshToken: this.props.retrieveFreshToken
-                                })
-                            }}
-                        // onSelect={() => { }}
-                        //isSelected={this.isSelected}
-                        />}
-                    keyExtractor={item => item.id}
-                // onEndReached={this.getSearchResultsOnEndReached}
-                // ListFooterComponent={this.renderFooter.bind(this)}
-                />
-            </View>
-        );
+        if (this.state.hasFailed) {
+            return <NetworkFailedScreen onRefreshCallback={this.loadPlaylists} />
+        } else {
+            if (this.state.playlists.length > 0)
+                return (
+                    <View style={{ flex: 1, backgroundColor: "#595959" }}>
+                        <FlatList
+                            data={this.state.playlists}
+                            renderItem={({ item }) =>
+                                <Item
+                                    id={item.id}
+                                    title={item.title}
+                                    thumbnail={item.thumbnailUrl}
+                                    onSelect={() => {
+                                        console.log('on select');
+                                        this.props.navigation.navigate(`MyPlaylistVideoList`, {
+                                            id: item.id, title: item.title, retrieveFreshToken: this.props.retrieveFreshToken
+                                        })
+                                    }}
+                                // onSelect={() => { }}
+                                //isSelected={this.isSelected}
+                                />}
+                            keyExtractor={item => item.id}
+                        // onEndReached={this.getSearchResultsOnEndReached}
+                        // ListFooterComponent={this.renderFooter.bind(this)}
+                        />
+                    </View>
+                );
+            else return (
+                <View style={styles.spinnerContainer}>
+                    <ActivityIndicator color="#00ff00" size="large" />
+                    <Text style={styles.title}>Loading...</Text>
+                </View>
+            );
+        }
     }
 
 }
@@ -70,6 +102,16 @@ function Item({ id, title, thumbnail, onSelect }) {
 }
 
 const styles = StyleSheet.create({
+    spinnerContainer: {
+        flex: 1,
+        flexDirection: 'column',
+        resizeMode: 'cover',
+        backgroundColor: '#737373',
+        elevation: 1,
+        justifyContent: 'center',
+        alignContent: 'center',
+        alignItems: 'center'
+    },
     container: {
         flex: 1,
         flexDirection: 'row',

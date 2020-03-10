@@ -15,6 +15,7 @@ interface IMenuDrawerProps {
 	isLoggedInUser: boolean;
 	name: string;
 	photoUrl: string;
+	email: string;
 	signIn(): void;
 	signOut(): void;
 	getMyPlaylists(): Promise<IPlaylistModel[]>;
@@ -66,7 +67,7 @@ export default class MenuDrawer extends React.Component<IMenuDrawerProps, {}> {
 	navToPlaylists() {
 		return (
 			<TouchableOpacity style={{ height: 50 }} onPress={() => {
-				this.props.navigation.navigate('Playlists', { getMyPlaylists: this.getMyPlaylistsWrapper, retrieveFreshToken: this.retrieveFreshTokenWrapper });
+				this.props.navigation.navigate('Playlists', {email: this.props.email, getMyPlaylists: this.getMyPlaylistsWrapper, retrieveFreshToken: this.retrieveFreshTokenWrapper });
 			}}>
 				<Text style={styles.link}>My Playlists</Text>
 			</TouchableOpacity>

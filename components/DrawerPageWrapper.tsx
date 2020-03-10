@@ -17,6 +17,7 @@ const DrawerConfig = {
 	contentComponent: ({ navigation, screenProps }) => {
 		return (<MenuDrawer
 			navigation={navigation}
+			email={screenProps.email}
 			isLoggedInUser={screenProps.signedIn}
 			name={screenProps.name}
 			photoUrl={screenProps.photoUrl}

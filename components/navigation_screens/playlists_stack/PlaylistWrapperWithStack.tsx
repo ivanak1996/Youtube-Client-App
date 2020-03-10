@@ -15,6 +15,13 @@ export default class PlaylistWrapperWithStack extends Component<IPlaylistWrapper
 
     constructor(props: IPlaylistWrapperWithStackProps) {
         super(props);
+
+        // const didFocusSubscription = this.props.navigation.addListener(
+        //     'didFocus',
+        //     payload => {
+        //         console.debug('didFocus', payload);
+        //     }
+        // );
     }
 
     render() {
@@ -22,7 +29,7 @@ export default class PlaylistWrapperWithStack extends Component<IPlaylistWrapper
         let { params } = navigation.state;
         return (
             <View style={{ flex: 1 }}>
-                <View style={{ flex: 1, paddingBottom: StatusBar.currentHeight, }}>
+                <View style={{ flex: 1, paddingBottom: StatusBar.currentHeight, backgroundColor: "#4d4d4d" }}>
                     <MenuButton navigation={navigation} />
                 </View>
                 <View style={{ flex: 9 }}>
@@ -30,7 +37,8 @@ export default class PlaylistWrapperWithStack extends Component<IPlaylistWrapper
                         //navigation={this.props.navigation}
                         screenProps={{
                             getMyPlaylists: async () => { return await params.getMyPlaylists() },
-                            retrieveFreshToken: async () => { return await params.retrieveFreshToken() }
+                            retrieveFreshToken: async () => { return await params.retrieveFreshToken() },
+                            email: params.email
                         }}
                     />
                 </View>
@@ -48,6 +56,7 @@ function PlaylistsWrapper({ navigation, screenProps }) {
             navigation={navigation}
             getMyPlaylists={screenProps.getMyPlaylists}
             retrieveFreshToken={screenProps.retrieveFreshToken}
+            email={screenProps.email}
         />
     );
 }
@@ -63,9 +72,9 @@ const PlaylistsStack = createStackNavigator({
         screen: VideoDetailsPageWrapper
     }
 },
-{
-    headerMode: 'none'
-}
+    {
+        headerMode: 'none'
+    }
 );
 
 const StackWrapper = createAppContainer(PlaylistsStack);

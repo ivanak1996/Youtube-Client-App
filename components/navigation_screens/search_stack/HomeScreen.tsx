@@ -2,9 +2,10 @@ import React, { Component } from "react";
 import { View, StatusBar } from "react-native";
 import MenuButton from "../../MenuButton";
 import MainPage from "./MainPage"
-import { createAppContainer } from "react-navigation";
+import { createAppContainer, StackActions, NavigationActions, NavigationContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import VideoDetailsPageWrapper from "../VideoDetailsPageWrapper";
+import NetworkFailedScreen from "../NetworkFailedScreen";
 
 interface IHomeScreenProps {
     navigation: any;
@@ -39,11 +40,15 @@ const VideoSearchStack = createStackNavigator({
     },
     VideoDetails: {
         screen: VideoDetailsPageWrapper
+    },
+    ErrorPage: {
+        screen: NetworkFailedScreen
     }
+
 },
     {
         headerMode: 'none'
     }
 );
 
-const StackWrapper = createAppContainer(VideoSearchStack);
+const StackWrapper: NavigationContainer = createAppContainer(VideoSearchStack);

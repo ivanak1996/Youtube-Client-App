@@ -17,8 +17,8 @@ export default class PlaylistWrapper extends Component<IPlaylistWrapperProps, {}
         let { navigation } = this.props;
         let { params } = navigation.state;
         return (
-            <View style={{ flex: 1 }}>
-                <View style={{ flex: 1, paddingBottom: StatusBar.currentHeight, }}>
+            <View style={{ flex: 1, paddingBottom: StatusBar.currentHeight, backgroundColor: "#4d4d4d" }}>
+                <View style={{ flex: 1, flexDirection: 'row' }}>
                     <MenuButton navigation={navigation} />
                 </View>
                 <View style={{ flex: 9 }}>
@@ -26,6 +26,7 @@ export default class PlaylistWrapper extends Component<IPlaylistWrapperProps, {}
                         navigation={this.props.navigation}
                         getMyPlaylists={params.getMyPlaylists}
                         retrieveFreshToken={params.retrieveFreshToken}
+                        email={params.email}
                     />
                 </View>
             </View>

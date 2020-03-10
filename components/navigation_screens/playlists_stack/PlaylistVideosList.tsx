@@ -77,14 +77,20 @@ export default class PlaylistVideosList extends Component<IPlaylistVideosListPro
     }
 
     async getMorePlaylistVideos() {
+        console.log('get more');
         if (this.state.loading || this.state.nextPageToken === "NO_MORE") return;
         this.setState({ loading: true });
-        let additionalListItems: any = await (this.getMyPlaylists(this.getPlaylistId(), this.state.nextPageToken));
-        this.setState({
-            videos: this.state.videos.concat(additionalListItems.videosList),
-            nextPageToken: additionalListItems.nextPageToken,
-            loading: false
-        });
+        try {
+            let additionalListItems: any = await (this.getMyPlaylists(this.getPlaylistId(), this.state.nextPageToken));
+            this.setState({
+                videos: this.state.videos.concat(additionalListItems.videosList),
+                nextPageToken: additionalListItems.nextPageToken,
+                loading: false
+            });
+        } catch (err) {
+            this.setState({ loading: false });
+            return;
+        }
     }
 
     renderFooter() {

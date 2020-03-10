@@ -1,10 +1,11 @@
 import React, { Component } from "react";
 import { View, StatusBar } from "react-native";
 import MenuButton from "../../MenuButton";
-import { createAppContainer } from "react-navigation";
+import { createAppContainer, NavigationActions, StackActions } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import VideoDetailsPageWrapper from "../VideoDetailsPageWrapper";
 import VideoFromUrlGetter from "./VideoFromUrlGetter";
+import NetworkFailedNavigationWrapper from "../NetworkFailedNavigationWrapper";
 
 interface IUrlStackProps {
     navigation: any;
@@ -14,6 +15,19 @@ export default class UrlStack extends Component<IUrlStackProps, {}>{
 
     constructor(props: IUrlStackProps) {
         super(props);
+
+        // const didFocusSubscription = this.props.navigation.addListener(
+        //     'didFocus',
+        //     payload => {
+        //         console.debug('didFocus', payload);
+
+        //         const resetStackAction = StackActions.reset({
+        //             index: 0,
+        //             actions: [NavigationActions.navigate({ routeName: 'Discover' })],
+        //         });
+        //     this.props.navigation.dispatch(resetStackAction);
+        //     }
+        // );
     }
 
     render() {
@@ -26,7 +40,7 @@ export default class UrlStack extends Component<IUrlStackProps, {}>{
                     </View>
                 </View>
                 <View style={{ flex: 9 }}>
-                    <StackWrapper />
+                    <StackWrapper  />
                 </View>
             </View>
         );
@@ -39,6 +53,9 @@ const UrlStackNav = createStackNavigator({
     },
     VideoDetails: {
         screen: VideoDetailsPageWrapper
+    },
+    ErrorPage: {
+        screen: NetworkFailedNavigationWrapper
     }
 },
     {

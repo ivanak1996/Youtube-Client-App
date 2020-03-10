@@ -1,10 +1,9 @@
 import React, { Component } from "react";
-import { View, StatusBar, StyleSheet, Keyboard } from "react-native";
-import MenuButton from "../../MenuButton";
-import { Input, Button } from "react-native-elements";
+import { View, StyleSheet, Text, KeyboardAvoidingView } from "react-native";
+import { Button } from "react-native-elements";
 import IVideoListItem from "../../../models/IVideoListItem";
 import { YOUTUBE_SERVER_URI } from "../../../constants";
-import { TextInput, TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { TextInput } from "react-native-gesture-handler";
 
 interface IVideoFromUrlGetterProps {
     navigation: any;
@@ -48,10 +47,15 @@ export default class VideoFromUrlGetter extends Component<IVideoFromUrlGetterPro
     render() {
         var { navigation } = this.props;
         return (
-            <View style={{ flex: 1 }}>
+            <KeyboardAvoidingView style={{ flex: 1, backgroundColor: '#737373' }} behavior="padding" enabled>
+                <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 20, color: "#ffccff", margin: 15 }}>
+                        Insert the link of the video below
+                    </Text>
+                </View>
                 <View style={styles.videoByUrlContainer}>
                     <TextInput
-                        style={{marginBottom: 20, height: 40, borderColor: 'gray', borderWidth: 1, fontSize: 20, color: "#ffccff"}}
+                        style={{ marginBottom: 20, height: 40, borderColor: 'gray', borderWidth: 1, fontSize: 20, color: "#ffccff" }}
                         placeholder="paste video URL here"
                         onChangeText={(text) => { this.setState({ input: text }) }}
                         value={this.state.input}
@@ -64,12 +68,12 @@ export default class VideoFromUrlGetter extends Component<IVideoFromUrlGetterPro
                             if (res !== null) {
                                 navigation.navigate(`VideoDetails`, { id: videoId, description: res.description, title: res.title });
                             } else {
-                                navigation.navigate(`VideoDetails`, { id: "RG-DK2Th7FY", description: "Juzni vetar", title: "Juzni vetar" });
+                                navigation.navigate(`ErrorPage`);
                             }
                         }}
                         title="   Fetch   " />
                 </View>
-            </View>
+            </KeyboardAvoidingView >
         );
     }
 
@@ -80,7 +84,6 @@ const styles = StyleSheet.create({
         flex: 9,
         flexDirection: 'column',
         resizeMode: 'cover',
-        backgroundColor: '#737373',
         elevation: 1,
         justifyContent: 'center',
         alignContent: 'center',
