@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import IPlaylistModel from "../../../models/IPlaylistModel";
-import { View, FlatList, TouchableOpacity, Text, Image, StyleSheet, ActivityIndicator } from "react-native";
+import { View, FlatList, TouchableOpacity, Text, Image, StyleSheet, ActivityIndicator, SafeAreaView, RefreshControl } from "react-native";
 import NetworkFailedScreen from "../NetworkFailedScreen";
 
 interface IPlaylistsProps {
@@ -13,21 +13,29 @@ interface IPlaylistsProps {
 interface IPlaylistState {
     playlists: IPlaylistModel[];
     hasFailed: boolean;
+    refreshing: boolean;
 }
 
 export default class Playlists extends Component<IPlaylistsProps, IPlaylistState> {
 
     constructor(props: IPlaylistsProps) {
         super(props);
-        this.state = ({ playlists: [], hasFailed: false });
+        this.state = ({ playlists: [], hasFailed: false, refreshing: false });
         this.loadPlaylists = this.loadPlaylists.bind(this);
+        this.onRefresh = this.onRefresh.bind(this);
     }
 
     componentDidUpdate(prevProps: IPlaylistsProps) {
-        if(prevProps.email !== this.props.email) {
-            this.setState({playlists: []});
+        if (prevProps.email !== this.props.email) {
+            this.setState({ playlists: [] });
             this.loadPlaylists();
         }
+    }
+
+    onRefresh = async () => {
+        this.setState({ refreshing: true, playlists: [] });
+        await this.loadPlaylists();
+        this.setState({ refreshing: false });
     }
 
     async loadPlaylists() {
@@ -56,28 +64,27 @@ export default class Playlists extends Component<IPlaylistsProps, IPlaylistState
         } else {
             if (this.state.playlists.length > 0)
                 return (
-                    <View style={{ flex: 1, backgroundColor: "#595959" }}>
-                        <FlatList
-                            data={this.state.playlists}
-                            renderItem={({ item }) =>
-                                <Item
-                                    id={item.id}
-                                    title={item.title}
-                                    thumbnail={item.thumbnailUrl}
-                                    onSelect={() => {
-                                        console.log('on select');
-                                        this.props.navigation.navigate(`MyPlaylistVideoList`, {
-                                            id: item.id, title: item.title, retrieveFreshToken: this.props.retrieveFreshToken
-                                        })
-                                    }}
-                                // onSelect={() => { }}
-                                //isSelected={this.isSelected}
-                                />}
-                            keyExtractor={item => item.id}
-                        // onEndReached={this.getSearchResultsOnEndReached}
-                        // ListFooterComponent={this.renderFooter.bind(this)}
-                        />
-                    </View>
+                    <SafeAreaView style={{ flex: 1 }}>
+                        <View style={{ flex: 1, backgroundColor: "#595959" }}>
+                            <FlatList
+                                data={this.state.playlists}
+                                renderItem={({ item }) =>
+                                    <Item
+                                        id={item.id}
+                                        title={item.title}
+                                        thumbnail={item.thumbnailUrl}
+                                        onSelect={() => {
+                                            console.log('on select');
+                                            this.props.navigation.navigate(`MyPlaylistVideoList`, {
+                                                id: item.id, title: item.title, retrieveFreshToken: this.props.retrieveFreshToken
+                                            })
+                                        }}
+                                    />}
+                                keyExtractor={item => item.id}
+                                refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh} />}
+                            />
+                        </View>
+                    </SafeAreaView>
                 );
             else return (
                 <View style={styles.spinnerContainer}>

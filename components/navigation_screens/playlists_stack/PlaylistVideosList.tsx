@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, FlatList, ActivityIndicator, Text, StyleSheet, TouchableOpacity, Image, StatusBar } from "react-native";
+import { View, FlatList, ActivityIndicator, Text, StyleSheet, TouchableOpacity, Image, StatusBar, SafeAreaView, RefreshControl } from "react-native";
 import IVideoListItem from "../../../models/IVideoListItem";
 import { YOUTUBE_SERVER_URI } from "../../../constants";
 import MenuButton from "../../MenuButton";
@@ -12,17 +12,19 @@ interface IPlaylistVideosListState {
     videos: IVideoListItem[];
     nextPageToken: string;
     loading: boolean;
+    refreshing: boolean;
 }
 
 export default class PlaylistVideosList extends Component<IPlaylistVideosListProps, IPlaylistVideosListState> {
 
     constructor(props: IPlaylistVideosListProps) {
         super(props);
-        this.state = ({ videos: [], nextPageToken: "", loading: false });
+        this.state = ({ videos: [], nextPageToken: "", loading: false, refreshing: false });
         this.getMyPlaylists = this.getMyPlaylists.bind(this);
         this.getPlaylistId = this.getPlaylistId.bind(this);
         this.getPlaylistVideos = this.getPlaylistVideos.bind(this);
         this.getMorePlaylistVideos = this.getMorePlaylistVideos.bind(this);
+        this.onRefresh = this.onRefresh.bind(this);
     }
 
     async componentDidMount() {
@@ -31,6 +33,12 @@ export default class PlaylistVideosList extends Component<IPlaylistVideosListPro
         } catch (err) {
             console.log(err);
         }
+    }
+
+    onRefresh = async () => {
+        this.setState({ refreshing: true, videos: [] });
+        await this.getPlaylistVideos();
+        this.setState({ refreshing: false });
     }
 
     async componentDidUpdate(prevProps: IPlaylistVideosListProps) {
@@ -105,22 +113,25 @@ export default class PlaylistVideosList extends Component<IPlaylistVideosListPro
         return (
             <View style={{ flex: 1 }}>
                 {this.state.videos.length > 0 &&
-                    <View style={{ backgroundColor: "#595959" }}>
-                        <FlatList
-                            data={this.state.videos}
-                            renderItem={({ item }) =>
-                                <Item
-                                    id={item.id}
-                                    title={item.title}
-                                    description={item.description}
-                                    thumbnail={item.thumbnailUrl}
-                                    onSelect={() => this.props.navigation.navigate(`MyPlaylistVideoDetails`, { id: item.id, description: item.description, title: item.title })}
-                                />}
-                            keyExtractor={item => item.id}
-                            onEndReached={this.getMorePlaylistVideos}
-                            ListFooterComponent={this.renderFooter.bind(this)}
-                        />
-                    </View>
+                    <SafeAreaView style={{ flex: 1 }}>
+                        <View style={{ backgroundColor: "#595959" }}>
+                            <FlatList
+                                data={this.state.videos}
+                                renderItem={({ item }) =>
+                                    <Item
+                                        id={item.id}
+                                        title={item.title}
+                                        description={item.description}
+                                        thumbnail={item.thumbnailUrl}
+                                        onSelect={() => this.props.navigation.navigate(`MyPlaylistVideoDetails`, { id: item.id, description: item.description, title: item.title })}
+                                    />}
+                                keyExtractor={item => item.id}
+                                onEndReached={this.getMorePlaylistVideos}
+                                refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh} />}
+                                ListFooterComponent={this.renderFooter.bind(this)}
+                            />
+                        </View>
+                    </SafeAreaView>
                 }
                 {this.state.videos.length <= 0 &&
                     <View style={styles.spinnerContainer}>

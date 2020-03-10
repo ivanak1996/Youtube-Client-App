@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Image, Text, View, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, Image, Text, View, FlatList, TouchableOpacity, ActivityIndicator, SafeAreaView, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import IVideoListItem from '../../../models/IVideoListItem';
 import { YOUTUBE_SERVER_URI } from '../../../constants';
@@ -16,6 +16,7 @@ interface IVideosListState {
     nextPageToken: string;
     loading: boolean;
     hasFailed: boolean;
+    refreshing: boolean;
 }
 
 async function getSearchResultsFromApi(keyword: string) {
@@ -45,12 +46,19 @@ export default class VideosList extends Component<IVideosListProps, IVideosListS
 
     constructor(props: IVideosListProps) {
         super(props);
-        this.state = { selected: -1, list: [], nextPageToken: '', loading: false, hasFailed: false };
+        this.state = { selected: -1, list: [], nextPageToken: '', loading: false, hasFailed: false, refreshing: false };
 
         this.handleItemClick = this.handleItemClick.bind(this);
         this.isSelected = this.isSelected.bind(this);
         this.getSearchResults = this.getSearchResults.bind(this);
         this.getSearchResultsOnEndReached = this.getSearchResultsOnEndReached.bind(this);
+        this.onRefresh = this.onRefresh.bind(this);
+    }
+
+    onRefresh = async () => {
+        this.setState({ refreshing: true, list: [] });
+        await this.getSearchResults();
+        this.setState({ refreshing: false });
     }
 
     async componentDidMount() {
@@ -108,23 +116,26 @@ export default class VideosList extends Component<IVideosListProps, IVideosListS
             return (<NetworkFailedScreen onRefreshCallback={async () => await this.getSearchResults()} />)
         else if (this.state.list.length > 0)
             return (
-                <View style={{ paddingBottom: 64, backgroundColor: "#595959" }}>
-                    <FlatList
-                        data={this.state.list}
-                        renderItem={({ item }) =>
-                            <Item
-                                id={item.id}
-                                title={item.title}
-                                description={item.description}
-                                thumbnail={item.thumbnailUrl}
-                                onSelect={() => this.props.navigation.navigate(`VideoDetails`, { id: item.id, description: item.description, title: item.title })}
-                                isSelected={this.isSelected}
-                            />}
-                        keyExtractor={item => item.id}
-                        onEndReached={this.getSearchResultsOnEndReached}
-                        ListFooterComponent={this.renderFooter.bind(this)}
-                    />
-                </View>
+                <SafeAreaView style={{ flex: 1 }}>
+                    <View style={{ backgroundColor: "#595959" }}>
+                        <FlatList
+                            data={this.state.list}
+                            renderItem={({ item }) =>
+                                <Item
+                                    id={item.id}
+                                    title={item.title}
+                                    description={item.description}
+                                    thumbnail={item.thumbnailUrl}
+                                    onSelect={() => this.props.navigation.navigate(`VideoDetails`, { id: item.id, description: item.description, title: item.title })}
+                                    isSelected={this.isSelected}
+                                />}
+                            keyExtractor={item => item.id}
+                            onEndReached={this.getSearchResultsOnEndReached}
+                            refreshControl={<RefreshControl refreshing={this.state.refreshing} onRefresh={this.onRefresh} />}
+                            ListFooterComponent={this.renderFooter.bind(this)}
+                        />
+                    </View>
+                </SafeAreaView>
             ); else return (
                 <View style={styles.spinnerContainer}>
                     <ActivityIndicator color="#00ff00" size="large" />
