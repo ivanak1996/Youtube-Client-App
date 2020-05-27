@@ -112,8 +112,6 @@ export default class AppWrapper extends Component<{}, IAppWrapperState> {
             console.log(`ACCESS TOKEN: ${this.state.accessToken}`)
             return this.state.accessToken;
         }
-
-
     }
 
     checkTokenValidity = async () => {

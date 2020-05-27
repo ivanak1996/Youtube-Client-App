@@ -47,8 +47,8 @@ export default class CustomTextInput extends Component<ICustomTextInputProps, IC
         {this.state.submittedSearch === "" &&
           <View style={{ flex: 1, backgroundColor: "#999999" }}>
             <View style={{ flex: 1, margin: 24, alignContent: 'center', justifyContent: 'center' }}>
-              <Text style={{ textAlign: 'center', color: "#ffccff", fontSize: 24, marginBottom: 5 }}>Welcome to Share Tube app!</Text>
-              <Text style={{ textAlign: 'center', color: "#ffccff", fontSize: 20 }}>Search for song you like, or log in with your Google account to access your saved playlists</Text>
+              <Text style={{ textAlign: 'center', color: "#ffccff", fontSize: 24, marginBottom: 15 }}>Welcome to Youtube Downloader app!</Text>
+              <Text style={{ textAlign: 'center', color: "#ffccff", fontSize: 16 }}>Search for a song you like, or log in with your Google account to access your saved playlists</Text>
             </View>
           </View>
         }

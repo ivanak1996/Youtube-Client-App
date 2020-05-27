@@ -113,7 +113,8 @@ export default class VideoDetailsPage extends Component<IVideoDetailsPageProps, 
 
     downloadFile(shouldDownload: boolean) {
         this.setState({ isDownloading: true });
-        const uri = `${YOUTUBE_SERVER_URI}/api/Youtube/DownloadFile/${this.props.id}`;
+        const uri = `${YOUTUBE_SERVER_URI}/api/Youtube/DownloadFile?id=${this.props.id}`;
+        console.log(uri);
         let str = this.props.title;
         str = str.replace(/\s+/g, '_');
         let fileUri = FileSystem.documentDirectory + `${str}.mp3`
